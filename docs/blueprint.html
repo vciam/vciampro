@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Blueprint: Visual Context Map</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1, h2 {
+            color: #fff;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 2rem;
+            background-color: #1e1e1e;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 20px; height: 20px; border-radius: 4px; }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .node {
+            background-color: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.3);
+        }
+        .node h3 {
+            margin-top: 0;
+            color: #3b82f6; /* Blue */
+            font-size: 1.2rem;
+            border-bottom: 1px solid #4a4a4a;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .node.ui { border-left: 5px solid #3b82f6; } /* Blue for UI */
+        .node.state { border-left: 5px solid #10b981; } /* Green for State/Logic */
+        .node.service { border-left: 5px solid #f97316; } /* Orange for Services */
+        .node.external { border-left: 5px solid #ef4444; } /* Red for External */
+        .node p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #999999;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #2d2d2d;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .trigger { font-weight: bold; color: #a78bfa; } /* Violet */
+        .workflow { color: #60a5fa; } /* Sky Blue */
+        .data { font-style: italic; color: #facc15; } /* Yellow */
+    </style>
+</head>
+<body>
+
+    <h1>System Blueprint: Visual Context Map (Graph of Thoughts)</h1>
+    <p style="color: #999; margin-bottom: 2rem; max-width: 800px; text-align: center;">This diagram illustrates the primary workflows and data flow within the AI Content Organizer application, based on the "Event -> Workflow -> Single Source of Truth" model.</p>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div><span>UI Components</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #10b981;"></div><span>State & Logic</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #f97316;"></div><span>Service Layer</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #ef4444;"></div><span>External API</span></div>
+    </div>
+
+    <h2>Core Application Flow</h2>
+    <div class="container">
+        <div class="node ui">
+            <h3>User Interface Layer</h3>
+            <p>Consists of `index.html` (entrypoint) and all React components under `/components`.</p>
+            <ul>
+                <li><span class="trigger">[EVENT]</span> User types in `textarea` or clicks a tag.</li>
+                <li><span class="trigger">[EVENT]</span> User clicks "Generate" button.</li>
+                <li><span class="trigger">[EVENT]</span> User imports a `.json` file.</li>
+                <li><span class="trigger">[EVENT]</span> User selects text in the output.</li>
+            </ul>
+        </div>
+        <div class="node state">
+            <h3>State & Logic (`App.tsx`)</h3>
+            <p>The monolithic root component that acts as the central hub for state management and business logic.</p>
+            <ul>
+                <li><span class="workflow">[WORKFLOW]</span> Updates React state (`content`, `selectedTags`).</li>
+                <li><span class="workflow">[WORKFLOW]</span> Triggers `handleSubmit()` function.</li>
+                <li><span class="workflow">[WORKFLOW]</span> Triggers `handleImportKeywords()` function.</li>
+                <li><span class="workflow">[WORKFLOW]</span> Renders `SuggestionDisplay` with new props.</li>
+            </ul>
+        </div>
+        <div class="node service">
+            <h3>Service Layer (`geminiService.ts`)</h3>
+            <p>Encapsulates all communication with the external Gemini API. Responsible for prompt engineering.</p>
+            <ul>
+                <li><span class="data">[SSOT]</span> `getOrganizationSuggestions` assembles a prompt using `content`, `tags`, and `customTags`.</li>
+                <li><span class="data">[SSOT]</span> `discoverKeywordsFromText` analyzes imported text.</li>
+                 <li><span class="data">[SSOT]</span> `analyzeAndSuggestContextualImprovements` performs meta-analysis on user context.</li>
+            </ul>
+        </div>
+        <div class="node external">
+            <h3>Google Gemini API</h3>
+            <p>The external AI model that processes the prompts and returns the evolved content.</p>
+             <ul>
+                <li>Receives the structured prompt from the Service Layer.</li>
+                <li>Processes the request using either `gemini-2.5-flash` or `gemini-2.5-pro`.</li>
+                <li>Returns a response containing the evolved text, keywords, and semantic score.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
