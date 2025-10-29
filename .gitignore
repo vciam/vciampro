@@ -32,7 +32,6 @@ lerna-debug.log*
 *.swp
 *.swo
 *~
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
@@ -51,8 +50,3 @@ temp/
 # OS files
 Thumbs.db
 .DS_Store
-
-# Package manager
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
